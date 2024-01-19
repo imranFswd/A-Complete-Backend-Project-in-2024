@@ -7,5 +7,41 @@
 /node_modules
 ./dist
 
+**/.git
+**/.svn
+**/.hg
+**/node_modules
+
+# Ignore artifacts:
+build
+coverage
+
+# Ignore all HTML files:
+**/*.html
+
+generators
+# fixtures
+LICENSE
+README.md
+.editorconfig
+.eslintignore
+.gitattributes
+.gitignore
+.gitkeep
+.prettierignore
+*.ejs
+*.snap
+
+node_modules
+node_modules_container
+docs
+.git
+jdl/**/.jhipster/**
+.vscode-test
+**/templates/**/
+**/jdl-core.min.js
+**/generated-serialized-grammar.js
+test/fixtures/**
+dist
 
 

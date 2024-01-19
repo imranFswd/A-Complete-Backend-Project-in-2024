@@ -3,16 +3,16 @@
 
 
 
-## Project setup
+## A Complete Backend Project setup in 2024
 
 
-node -v
+node -v (checking Node version)
 
-npm -v
+npm -v (checking NPM version)
 
 
 
-## NPM
+## NPM (project initialization)
 
 npm init
 
@@ -69,14 +69,15 @@ git push -U origin main
 
 
 
-<!-- 25:00 -->
+
 
 ## To install Nodemon as dev dependies
 
 npm i -D nodemon
 
-## dotenv
+## To install dotenv as dev dependies
 
+npm i -D dotenv
 
 
 ## To create foldrs
