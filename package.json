@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -16,8 +16,12 @@
   "author": "imranFswd",
   "license": "ISC",
   "devDependencies": {
-    "dotenv": "^16.3.1",
     "nodemon": "^3.0.1",
     "prettier": "^3.2.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^8.1.0"
   }
 }
