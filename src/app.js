@@ -1,0 +1,28 @@
+import express from "express";
+import cookieParser from "cookie-parser";
+import cors from "cors"
+
+
+const app = express()
+
+
+// MIDDLEWARE (CORS)
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+}))
+
+// MIDDLEWARE (JSON Limit)
+app.use(express.json({limit: "16kb"}))
+
+// MIDDLEWARE (URL)
+app.use(express.urlencoded({extended: true, linit: "16kb"}))
+
+// MIDDLEWARE (Static Assets)
+app.use(express.static("public"))
+
+// MIDDLEWARE (Cookie Parser)
+app.use(cookieParser())
+
+export { app }
+
