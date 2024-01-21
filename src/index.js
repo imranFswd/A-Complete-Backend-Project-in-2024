@@ -13,7 +13,7 @@ import { app } from "./app.js";
 
 // env variable config
 dotenv.config({
-    path: './env'
+    path: './.env'
 })
 
 
@@ -27,7 +27,7 @@ connectDB()
     })
 
     app.listen(process.env.PORT || 8000, () => {
-        console.log(`Server is running at port: ${process.env.PORT} \n`);
+        console.log(`---------------------------------------------------------------- \n Server is running at port: ${process.env.PORT} \n----------------------------------------------------------------`);
     })
 })
 .catch((err) => {
