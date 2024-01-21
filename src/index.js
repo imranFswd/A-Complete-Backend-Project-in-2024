@@ -1,4 +1,9 @@
+
+
+
 // require('dotenv').config({path: './env'})
+
+
 
 import dotenv from "dotenv"
 import connectDB from "./db/index.js";
@@ -6,15 +11,14 @@ import { app } from "./app.js";
 
 
 
-
-
+// env variable config
 dotenv.config({
     path: './env'
 })
 
 
 
-
+// database connection
 connectDB()
 .then(() => {
     app.on("error", (err) => {
@@ -73,4 +77,5 @@ const app = express()
 })()
 
 */
- 
+
+
