@@ -6,6 +6,8 @@ import mongooseAggregatePaginate from "mongoose-agregate-paginate-v2"
 
 
 
+// video schema
+
 const videoSchema = new Schema(
     {
         videoFile: {
@@ -46,6 +48,17 @@ const videoSchema = new Schema(
     }
 )
 
+// console.log("videoSchema", videoSchema);
+// console.log("videoFile: ", videoSchema.videoFile);
+// console.log("thumbnail: ", videoSchema.thumbnail);
+// console.log("owner: ", videoSchema.owner);
+// console.log("title: ", videoSchema.title);
+// console.log("description: ", videoSchema.description);
+// console.log("duration: ", videoSchema.duration);
+// console.log("views: ", videoSchema.views);
+// console.log("isPublished: ", videoSchema.isPublished);
+// console.log("timestamps: ", videoSchema.timestamps);
+
 
 
 videoSchema.plugin(mongooseAggregatePaginate)
@@ -53,5 +66,7 @@ videoSchema.plugin(mongooseAggregatePaginate)
 
 
 export const Video = mongoose.model("Video", videoSchema)
+
+// console.log("Video: ", Video);
 
 

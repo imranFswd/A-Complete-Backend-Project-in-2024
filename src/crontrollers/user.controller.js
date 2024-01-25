@@ -28,10 +28,12 @@ const registerUser = asyncHandler( async (req, res) => {
     // step 01 - get user details from frontend
 
     const { fullName, email, username, password } = req.body
-    console.log("Full Name: ", fullName);
-    console.log("Email: ", email);
-    console.log("UserName: ", username);
-    console.log("password: ", password);
+
+    // console.log("fullName: ", fullName);
+    // console.log("email: ", email);
+    // console.log("username: ", username);
+    // console.log("password: ", password);
+    // console.log("req.body: ", req.body);
 
 
 
@@ -69,11 +71,11 @@ const registerUser = asyncHandler( async (req, res) => {
 
     // step 03 - check if user already exists: username, email
     
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ username }, { email }]
     })
 
-    console.log("Existed user: ", existedUser);
+    // console.log("existedUser: ", existedUser);
 
     if (existedUser) {
         throw new ApiError(409, "User with email or username already exists")
@@ -83,10 +85,22 @@ const registerUser = asyncHandler( async (req, res) => {
 
     // step 04 - check for images, check for avatar
     
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // const avatarLocalPath = req.files?.avatar[0]?.path;
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
-    console.log(req.files);
+    let avatarLocalPath;
+    if (req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0) {
+        avatarLocalPath = req.files?.avatar[0]?.path;
+    }
+
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files?.coverImage[0]?.path;
+    }
+
+    // console.log("avatarLocalPath: ", avatarLocalPath);
+    // console.log("coverImageLocalPath: ", coverImageLocalPath);
+    // console.log("req.files ", req.files);
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "avatar file is required!")
@@ -99,6 +113,9 @@ const registerUser = asyncHandler( async (req, res) => {
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
+    // console.log("avatar: ", avatar);
+    // console.log("coverImage: ", coverImage);
+
     if (!avatar) {
         throw new ApiError(400, "avatar file is required!")
     }
@@ -109,12 +126,14 @@ const registerUser = asyncHandler( async (req, res) => {
     
     const user = await User.create({
         fullName,
-        avatar: avatar.url,
-        coverImage: coverImage?.url || "",
         email,
         password,
-        username: username.toLowerCase()
+        username: username.toLowerCase(),
+        avatar: avatar.url,
+        coverImage: coverImage?.url || ""
     })
+
+    // console.log("user ", user);
 
 
 
@@ -123,6 +142,8 @@ const registerUser = asyncHandler( async (req, res) => {
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
+
+    // console.log("createdUser: ", createdUser);
 
 
 
@@ -140,6 +161,7 @@ const registerUser = asyncHandler( async (req, res) => {
         new ApiResponse(200, createdUser, "User register successfully !!!")
     )
 
+    // console.log("res: ", res);
 
 
     // res.status(200)
@@ -148,6 +170,7 @@ const registerUser = asyncHandler( async (req, res) => {
     // })
 })
 
+// console.log("resterUser: ", registerUser);
 
 
 export { registerUser }
