@@ -1,15 +1,16 @@
 
-
-
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken";
 
 
 
-// user schema
+/*
+** user schema
+*/
 
 const userSchema = new Schema(
+
     {
         watchHistory: [
             {
@@ -17,6 +18,7 @@ const userSchema = new Schema(
                 ref: "Video"
             }
         ],
+
         username: {
             type: String,
             required: [true, 'User name is required'],
@@ -25,6 +27,7 @@ const userSchema = new Schema(
             trim: true,
             index: true
         },
+
         email: {
             type: String,
             required: [true, 'Email is required'],
@@ -32,30 +35,38 @@ const userSchema = new Schema(
             lowercase: true,
             trim: true
         },
+
         fullName: {
             type: String,
             required: [true, 'Full Name is required'],
             trim: true,
             index: true
         },
+
         avatar: {
             type: String,
             required: [true, 'Avatar is required'],
         },
+
         coverImage: {
             type: String
         },
+
         password: {
             type: String,
             required: [true, 'Password is required']
         },
+
         refreshToken: {
             type: String
         }
+
     }, 
     {
         timestamps: true
     }
+
+
 )
 
 // console.log("userSchema: ", userSchema);
@@ -71,24 +82,32 @@ const userSchema = new Schema(
 
 
 
-// MIDDEWARE
+/*
+** MIDDEWARE
+*/
 
 userSchema.pre("save", async function (next) {
+
     if (!this.isModified("password")) {
         return next()
     }
+
     this.password = await bcrypt.hash(this.password, 10)
     next()
 
     console.log("this.password: ", this.password);
     console.log("next(): ", next());
+
+
 })
 
 // console.log("userSchema.pre: ", userSchema.pre);
 
 
 
-// MIDDEWARE
+/*
+** MIDDEWARE
+*/
 
 userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password, this.password)
@@ -98,9 +117,12 @@ userSchema.methods.isPasswordCorrect = async function(password){
 
 
 
-// ACCESS TOKEN
+/*
+** ACCESS TOKEN
+*/
 
 userSchema.methods.generateAccessToken = function(){
+
     jwt.sign(
         {
             _id: this._id,
@@ -110,18 +132,23 @@ userSchema.methods.generateAccessToken = function(){
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
-            expireIn: process.env.ACCESS_TOKEN_EXPIRY
+            expireIn: process.env.ACCESS_TOKEN_EXPIRY   
         }
     )
+
+
 }
 
 // console.log("userSchema.methods.generateAccessToken: ", userSchema.methods.generateAccessToken);
 
 
 
-// REFRESH TOKEN
+/*
+** REFRESH TOKEN
+*/
 
 userSchema.methods.generateRefreshToken = function(){
+
     jwt.sign(
         {
             _id: this._id,
@@ -131,12 +158,11 @@ userSchema.methods.generateRefreshToken = function(){
             expireIn: process.env.REFRESH_TOKEN_EXPIRY
         }
     )
+
+
 }
 
 // console.log("userSchema.methods.generateRefreshToken", userSchema.methods.generateRefreshToken);
-
-
-
 // console.log("User: ", User);
 
 

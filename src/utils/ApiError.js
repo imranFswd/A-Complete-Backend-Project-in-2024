@@ -1,7 +1,10 @@
 
-
+/*
+** api error
+*/
 
 class ApiError extends Error {
+    
     constructor(
         statusCode,
         message = "Something went wrong",
@@ -21,6 +24,8 @@ class ApiError extends Error {
             Error.captureStackTrace(this, this.constructor)
         }
     }
+
+
 }
 
 // console.log("ApiError: ", ApiError);

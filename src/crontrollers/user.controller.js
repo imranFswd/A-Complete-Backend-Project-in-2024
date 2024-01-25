@@ -1,6 +1,4 @@
 
-
-
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js"
@@ -9,10 +7,39 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 
 
 
+/*
+** generateAccessTokenAndRefreshToken method
+*/
+
+const generateAccessTokenAndRefreshToken = async (userId) => {
+    try {
+        const user = await User/findById(userId)
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+
+        // console.log("user: ", user);
+        // console.log("accessToken: ", accessToken);
+        // console.log("refreshToken: ", refreshToken);
+        
+        user.refreshToken = refreshToken
+        await user.save({validateBeforeSave: false})
+        
+        return { accessToken, refreshToken }
+    } catch (error) {
+        throw new ApiError(500, "something went wrong while generating access and refresh token...")
+    }
+}
+
+// console.log("generateAccessTokenAndRefreshToken: ", generateAccessTokenAndRefreshToken);
+
+
+
+/*
+** register user
+*/
+
 const registerUser = asyncHandler( async (req, res) => {
     
-
-
     // step 01 - get user details from frontend
     // step 02 - validation - not empty
     // step 03 - check if user already exists: username, email
@@ -25,7 +52,9 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
 
-    // step 01 - get user details from frontend
+    /*
+    ** step 01 - get user details from frontend
+    */
 
     const { fullName, email, username, password } = req.body
 
@@ -37,7 +66,9 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
 
-    // step 02 - validation - not empty
+    /*
+    ** step 02 - validation - not empty
+    */
 
     // if (
     //     [
@@ -69,11 +100,15 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
 
-    // step 03 - check if user already exists: username, email
+    /*
+    ** step 03 - check if user already exists: username, email
+    */
     
     const existedUser = await User.findOne({
         $or: [{ username }, { email }]
     })
+
+    
 
     // console.log("existedUser: ", existedUser);
 
@@ -83,7 +118,9 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
 
-    // step 04 - check for images, check for avatar
+    /*
+    ** step 04 - check for images, check for avatar
+    */
     
     // const avatarLocalPath = req.files?.avatar[0]?.path;
     // const coverImageLocalPath = req.files?.coverImage[0]?.path;
@@ -108,7 +145,9 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
 
-    // step 05 - upload them to cloudinary, avatar
+    /*
+    ** step 05 - upload them to cloudinary, avatar
+    */
     
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
@@ -122,7 +161,9 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
 
-    // step 06 - create user object - create entry in database
+    /*
+    ** step 06 - create user object - create entry in database
+    */
     
     const user = await User.create({
         fullName,
@@ -133,11 +174,13 @@ const registerUser = asyncHandler( async (req, res) => {
         coverImage: coverImage?.url || ""
     })
 
-    // console.log("user ", user);
+    // console.log("created user ", user);
 
 
 
-    // step 07 - remove password and refresh token field from response
+    /*
+    ** step 07 - remove password and refresh token field from response
+    */
 
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
@@ -147,7 +190,9 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
 
-    // step 08 - check for user creation
+    /*
+    ** step 08 - check for user creation
+    */
 
     if (!createdUser) {
         throw new ApiError(500, "something went wrong while registering the new user")
@@ -155,7 +200,9 @@ const registerUser = asyncHandler( async (req, res) => {
 
 
 
-    // step 09 - return response
+    /*
+    ** step 09 - return response
+    */
     
     return res.status(201).json(
         new ApiResponse(200, createdUser, "User register successfully !!!")
@@ -168,11 +215,164 @@ const registerUser = asyncHandler( async (req, res) => {
     // .json({
     //     message: "User register successfully !!!"
     // })
+
+
 })
 
 // console.log("resterUser: ", registerUser);
 
 
-export { registerUser }
+/*
+** login user
+*/
+
+const loginUser = asyncHandler(async (req, res) => {
+
+    // step 01 - req.body => take data
+    // step 02 - login through email or username
+    // step 03 - find the user
+    // step 04 - password check
+    // step 05 - generate access and refresh token
+    // step 06 - send (cookie) response
+
+
+
+    /*
+    ** step 01 - req.body => take data
+    */
+
+    const { email, username, password } = req.body
+
+    // console.log("req.body: ", req.body);
+
+
+
+    /*
+    ** step 02 - login through email or username
+    */
+
+    if (!username || !email) {
+        throw new ApiError(400, "username or email required !!!")
+    }
+
+
+
+    /*
+    ** step 03 - find the user
+    */
+
+    const user = await User.findOne({
+        $or: [{username}, {email}]
+    })
+
+    // console.log("logined user: ", user);
+
+    if (!user) {
+        throw new ApiError(400, "User does not exist !!!")
+    }
+
+
+
+    /*
+    ** step 04 - password check
+    */
+
+    const isPasswordValid = await User.isPasswordCorrect(password)
+
+    if (!isPasswordValid) {
+        throw new ApiError(400, "Imvalid user credentials !!!")
+    }
+
+    // console.log("isPasswordValid: ", isPasswordValid);
+
+
+
+    /*
+    ** step 05 - generate access and refresh token
+    */
+
+    const { accessToken, refreshToken } = await generateAccessTokenAndRefreshToken(user._id)
+
+    // console.log("accessToken: ", accessToken);
+    // console.log("refreshToken: ", refreshToken);
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+        new ApiResponse(
+            200,
+            {
+                user: loggedInUser, accessToken, refreshToken
+            },
+            "User logged in successfully !!!"
+        )
+    )
+
+
+
+    /*
+    ** step 06 - send (cookie) response
+    */
+
+    const loggedInUser = User.findById(user._id).select("-password -refreshToken")
+
+
+
+})
+
+// console.log("loginUser: ", loginUser);
+
+
+
+/*
+** logout user
+*/
+
+const logoutUser = asyncHandler(async(req, res) => {
+    
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                refreshToken: undefined
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User loged out successfully !!!"))
+    
+
+
+})
+
+// console.log("logoutUser: ", logoutUser);
+
+
+
+// export
+export { 
+    registerUser,
+    loginUser,
+    logoutUser
+}
 
 

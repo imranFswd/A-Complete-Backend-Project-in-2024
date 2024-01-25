@@ -1,11 +1,13 @@
 
-
-
 import multer from "multer";
 
 
+/*
+** storage
+*/
 
 const storage = multer.diskStorage({
+
     destination: function (req, file, cb) {
       cb(null, './public/temp')
     },
@@ -14,6 +16,8 @@ const storage = multer.diskStorage({
       cb(null, file.fieldname + '-' + file.originalname + '-' + uniqueSuffix)
       // cb(null, `${file.fieldname}-${file.originalname}-${uniqueSuffix}`)
     }
+
+    
   })
 
   // console.log("storage: ", storage);

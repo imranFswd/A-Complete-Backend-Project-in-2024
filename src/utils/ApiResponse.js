@@ -1,7 +1,10 @@
 
-
+/*
+** api response
+*/
 
 class ApiResponse {
+    
     constructor(
         statusCode,
         data,
@@ -12,6 +15,8 @@ class ApiResponse {
         this.message = message
         this.success = (statusCode < 400)
     }
+
+
 }
 
 // console.log("ApiResponse: ", ApiResponse);
